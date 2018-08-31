@@ -1,0 +1,246 @@
+'''
+题目一：塔
+小易有一些立方体，每个立方体的边长为1，他用这些立方体搭了一些塔。
+现在小易定义：这些塔的不稳定值为它们之中最高的塔与最低的塔的高度差。
+小易想让这些塔尽量稳定，所以他进行了如下操作：每次从某座塔上取下一块立方体，并把它放到另一座塔上。
+注意，小易不会把立方体放到它原本的那座塔上，因为他认为这样毫无意义。
+现在小易想要知道，他进行了不超过k次操作之后，不稳定值最小是多少。
+输入描述:
+第一行两个数n,k (1 <= n <= 100, 0 <= k <= 1000)表示塔的数量以及最多操作的次数。
+第二行n个数，ai(1 <= ai <= 104)表示第i座塔的初始高度。
+
+
+输出描述:
+第一行两个数s, m，表示最小的不稳定值和操作次数(m <= k)
+接下来m行，每行两个数x,y表示从第x座塔上取下一块立方体放到第y座塔上。
+
+输入例子1:
+3 2
+5 8 5
+
+输出例子1:
+0 2
+2 1
+2 3
+思路：找到最高的塔和最低的塔，每次一定是最高的塔移到最低的塔，如果相差小于等于1或者达到了次数k，就不用移动了
+'''
+import sys
+n,k=list(map(int,sys.stdin.readline().strip().split()))
+l=list(map(int,sys.stdin.readline().strip().split()))
+max_height=max(l)
+min_height=min(l)
+res=[]
+if max_height-min_height<=1:
+    res=[0,0]
+else:
+    i=0
+    while i<k and max_height-min_height>1:
+        max_index=l.index(max_height)
+        min_index=l.index(min_height)
+        res.append([int(max_index)+1,int(min_index)+1])
+        l[max_index]-=1
+        l[min_index]+=1
+        max_height=max(l)
+        min_height=min(l)
+        i+=1
+    res.insert(0,[max_height-min_height,i])
+for i in res:
+    print('{} {}'.format(i[0],i[1]))
+'''
+题目二：表达式求值
+今天上课，老师教了小易怎么计算加法和乘法，乘法的优先级大于加法，但是如果一个运算加了括号，那么它的优先级是最高的。例如：
+1
+2
+3
+4
+1+2*3=7
+1*(2+3)=5
+1*2*3=6
+(1+2)*3=9
+现在小易希望你帮他计算给定3个数a，b，c，在它们中间添加"+"， "*"， "("， ")"符号，能够获得的最大值。
+
+输入描述:
+一行三个数a，b，c (1 <= a, b, c <= 10)
+
+
+输出描述:
+能够获得的最大值
+
+输入例子1:
+1 2 3
+
+输出例子1:
+9
+
+思路：如果输入的数组中存在1，对1来说加法是比乘法要大的，应该对所有的1都做加法，其余的数做乘法，
+但是还有区分只存在一个1的情况和存在多个1的情况，如果只存在一个1，就应该把1和第二小的数相加再和其余数做乘法
+如果存在多个1，就把所有的1相加之后和其余数做乘法
+'''
+import sys
+l=list(map(int,sys.stdin.readline().strip().split()))
+l.sort()
+s=[]
+for value in l:
+    if value<=1:
+        s.append(value)
+    else:
+        break
+if len(s)>1:
+    res=sum(s[:])
+    for i in range(len(s),len(l)):
+        res*=l[i]
+elif len(s)==1:
+    res=sum(s[:])+l[len(s)]
+    for i in range(len(s)+1,len(l)):
+        res*=l[i]
+else:
+    res=1
+    for i in range(len(s),len(l)):
+        res*=l[i]
+print(res)
+
+'''
+题目三：整理房间
+又到了周末，小易的房间乱得一团糟。
+他希望将地上的杂物稍微整理下，使每团杂物看起来都紧凑一些，没有那么乱。
+地上一共有n团杂物，每团杂物都包含4个物品。第i物品的坐标用(ai,bi)表示，小易每次都可以将它绕着(xi,yi)逆时针旋转，这将消耗他的一次移动次数。如果一团杂物的4个点构成了一个面积不为0的正方形，我们说它是紧凑的。
+因为小易很懒，所以他希望你帮助他计算一下每团杂物最少需要多少步移动能使它变得紧凑。
+
+输入描述:
+第一行一个数n(1 <= n <= 100)，表示杂物的团数。
+接下来4n行，每4行表示一团杂物，每行4个数ai, bi，xi, yi, (-104 <= xi, yi, ai, bi <= 104)，表示第i个物品旋转的它本身的坐标和中心点坐标。
+
+
+输出描述:
+n行，每行1个数，表示最少移动次数。
+
+输入例子1:
+4
+1 1 0 0
+-1 1 0 0
+-1 1 0 0
+1 -1 0 0
+1 1 0 0
+-2 1 0 0
+-1 1 0 0
+1 -1 0 0
+1 1 0 0
+-1 1 0 0
+-1 1 0 0
+-1 1 0 0
+2 2 0 1
+-1 0 0 -2
+3 0 0 -2
+-1 1 -2 0
+
+输出例子1:
+1
+-1
+3
+3
+
+例子说明1:
+对于第一团杂物，我们可以旋转第二个或者第三个物品1次。
+
+思路：(i[0],i[1])绕（x,y)逆时针旋转的坐标（y-i[1]+x,i[0]-x+y).可能的坐标是旋转3次，一共有四个坐标，然后对每一堆的四个点的四个可能坐标做排列组合，
+判断是不是square(排序后最小值不等于0，然后有四个值相等，而且对角线的平方是边的2倍）
+'''
+def change(i,x,y):
+    return [y-i[1]+x,i[0]-x+y]
+ 
+def dis(a,b):
+    return (a[0]-b[0])**2+(a[1]-b[1])**2
+ 
+def square(a,b,c,d):
+    p=[dis(a,b),dis(a,c),dis(a,d),dis(b,c),dis(b,d),dis(c,d)]
+    p.sort()
+    if p[0]!=0 and p[0]==p[1] and p[1]==p[2] and p[2]==p[3] and p[4]==p[5] and p[3]*2==p[4]:
+        return True
+    return False
+ 
+import sys
+n=int(sys.stdin.readline())
+for i in range(n):
+    temp1=[]
+    for j in range(4):
+        a,b,x,y=list(map(int,sys.stdin.readline().strip().split()))
+        temp=[[a,b]]
+        for k in range(3):
+            temp.append(change(temp[-1],x,y))
+        temp1.append(temp)
+    res=100
+    for i in range(4):
+        for j in range(4):
+            for k in range(4):
+                for h in range(4):
+                    if square(temp1[0][i],temp1[1][j],temp1[2][k],temp1[3][h]):
+                        res=min(res,i+j+k+h)
+    if res==100:
+        res=-1
+    print(res)
+'''
+题目四：小易的字典
+链接：https://www.nowcoder.com/questionTerminal/12b1b8ef17e1441f86f322b250bff4c0
+来源：牛客网
+
+小易在学校中学习了关于字符串的理论, 于是他基于此完成了一个字典的项目。
+
+小易的这个字典很奇特, 字典内的每个单词都包含n个'a'和m个'z', 并且所有单词按照字典序排列。
+
+小易现在希望你能帮他找出第k个单词是什么。
+
+
+输入描述:
+输入包括一行三个整数n, m, k(1 <= n, m <= 100, 1 <= k <= 109), 以空格分割。
+
+
+
+输出描述:
+输出第k个字典中的字符串，如果无解，输出-1。
+示例1
+输入
+2 2 6
+输出
+zzaa
+说明
+字典中的字符串依次为aazz azaz azza zaaz zaza zzaa
+思路：链接：https://www.nowcoder.com/questionTerminal/12b1b8ef17e1441f86f322b250bff4c0
+来源：牛客网
+
+排列组合，n个'a'和m个'z'，只能组成$C_{n+m}^n$，记为count(n+m,n) 个单词。
+
+思路：
+
+假设第一个字符为a，则剩下n-1个'a'和m个'z'组成的子序列只能构成count(n-1+m,n-1)个单词，且是字典中前count(n-1+m,n-1)个单词。
+比较k和count(n-1+m,n-1)，若k小，说明k是前count(n-1+m,n-1)个单词，则第一个字符必为'a'。子问题化为在子序列(n-1个'a'和m个'z')找到第k个单词
+若k大，则说明第一个字符必为'z',单词是以'z'开头的单词中的第k-count(n-1+m,n-1)个。子问题化为在子序列(n个'a'和m-1个'z')找到第k-count(n+m-1,m-1)个单词。
+eg:n=2,m=2,k=5
+
+假设第一个字符为a,则剩下1个a,2个z只能构成3个单词，且是字典中前3个单词(aamm,amam,amma)
+k>3，则第一个字符必为z。原问题化为在n=2,m=1,k=2，即在剩下2个a，1个z中找到第2个单词
+'''
+def cnm(a,b):
+    res=1
+    for i in range(a+1,a+b+1):
+        res*=i
+    for j in range(1,b+1):
+        res//=j
+    return res
+import sys
+n,m,k=list(map(int,sys.stdin.readline().strip().split()))
+if cnm(n,m)<k:
+    print(-1)
+else:
+    res=""
+    while n>0 and m>0:
+        temp=cnm(n-1,m)
+        if temp<k:
+            res+='z'
+            k-=temp
+            m-=1
+        else:
+            res+='a'
+            n-=1
+    res+='a'*n
+    res+='z'*m
+    print(res)
